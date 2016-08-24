@@ -27,6 +27,7 @@ import android.graphics.Region.Op;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -72,6 +73,9 @@ public class CircleLayout extends ViewGroup {
     private boolean mCached = false;
     ChartAnimator mAnimator;
     private boolean isAnimationOnly = false;
+    float mStart;
+    float mSweep = 0;
+    private float sweepAngle;
 
     private static final float SWEEP_INC = 0.5f;
 
@@ -615,32 +619,26 @@ public class CircleLayout extends ViewGroup {
         mXferPaint.setXfermode(null);
         mXferPaint.setColor(Color.BLACK);
 
-        float sweepAngle = (lp.endAngle - lp.startAngle) % 360;
+        sweepAngle = (lp.endAngle - lp.startAngle) % 360;
 
         if (isAnimationOnly) {
 
-            float mStart = lp.startAngle;
-            float mSweep = 0;
-            mDstCanvas.drawArc(mBounds, mStart, mSweep, true, mXferPaint);
+            mStart = lp.startAngle;
 
-            mXferPaint.setXfermode(mXfer);
-            mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
+//            mHandler.postDelayed(mAnimation,100);
 
-            canvas.drawBitmap(mDst, 0f, 0f, null);
 
-            while (mSweep < lp.endAngle){
+            if(mSweep < sweepAngle) {
+                mSweep += SWEEP_INC;
 
                 mDstCanvas.drawArc(mBounds, mStart, mSweep, true, mXferPaint);
 
-                mSweep += SWEEP_INC;
-
-
-
+                mXferPaint.setXfermode(mXfer);
+                mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
                 invalidate();
-
+            } else {
+                if (animation) isAnimationOnly = false;
             }
-
-            if (animation) isAnimationOnly = false;
 
         } else {
             mDstCanvas.drawArc(mBounds, lp.startAngle, sweepAngle, true, mXferPaint);
@@ -659,9 +657,27 @@ public class CircleLayout extends ViewGroup {
                 border.setStrokeWidth(5f); // set stroke width
                 mDstCanvas.drawArc(mBounds, lp.startAngle, sweepAngle, true, border);
             }
-            canvas.drawBitmap(mDst, 0f, 0f, null);
         }
+        canvas.drawBitmap(mDst, 0f, 0f, null);
     }
+
+    private Handler mHandler = new Handler();
+    private Runnable mAnimation = new Runnable() {
+        @Override
+        public void run() {
+
+
+            mDstCanvas.drawArc(mBounds, mStart, mSweep, true, mXferPaint);
+
+            mXferPaint.setXfermode(mXfer);
+            mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
+
+            if (mSweep < sweepAngle){
+                mSweep += SWEEP_INC;
+                invalidate();
+            }
+        }
+    };
 
     private void drawDividers(Canvas canvas, float halfWidth, float halfHeight, float radius) {
         final int childs = getChildCount();
