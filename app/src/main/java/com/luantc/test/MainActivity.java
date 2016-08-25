@@ -148,11 +148,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setViewModel(){
-        pie1View = new ViewModel(15f, false);
-        pie2View = new ViewModel(10f, false);
-        pie3View = new ViewModel(30f, false);
-        pie4View = new ViewModel(5f, false);
-        pie5View = new ViewModel(40f, false);
+        pie1View = new ViewModel(20f, false);
+        pie2View = new ViewModel(15f, false);
+        pie3View = new ViewModel(25f, false);
+        pie4View = new ViewModel(10f, false);
+        pie5View = new ViewModel(30f, false);
 
         pie1.setTag(pie1View);
         pie2.setTag(pie2View);

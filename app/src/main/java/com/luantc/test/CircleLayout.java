@@ -4,7 +4,9 @@ package com.luantc.test;
  * Created by luantruong on 6/30/16.
  */
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import android.animation.ValueAnimator;
@@ -29,6 +31,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,9 +76,9 @@ public class CircleLayout extends ViewGroup {
     private boolean mCached = false;
     ChartAnimator mAnimator;
     private boolean isAnimationOnly = false;
-    float mStart;
-    float mSweep = 0;
+    private static float mSweep = 0;
     private float sweepAngle;
+    private List<Float> mSweeps;
 
     private static final float SWEEP_INC = 0.5f;
 
@@ -90,14 +93,12 @@ public class CircleLayout extends ViewGroup {
     public CircleLayout(Context context) {
         this(context, null);
         mContext = context;
-        init();
     }
 
     @SuppressLint("NewApi")
     public CircleLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
-        init();
         mDividerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -135,160 +136,8 @@ public class CircleLayout extends ViewGroup {
         }
     }
 
-    private void init() {
-        if (Build.VERSION.SDK_INT < 11)
-            mAnimator = new ChartAnimator();
-        else
-            mAnimator = new ChartAnimator(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    postInvalidate();
-                }
-            });
-    }
-
     public void setAnimationOnly(boolean isAnimationOnly) {
         this.isAnimationOnly = isAnimationOnly;
-    }
-
-    /**
-     * ################ ################ ################ ################
-     * ANIMATIONS ONLY WORK FOR API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     */
-    /** CODE BELOW FOR PROVIDING EASING FUNCTIONS */
-
-    /**
-     * Animates the drawing / rendering of the chart on both x- and y-axis with
-     * the specified animation time. If animate(...) is called, no further
-     * calling of invalidate() is necessary to refresh the chart. ANIMATIONS
-     * ONLY WORK FOR API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillisX
-     * @param durationMillisY
-     * @param easingX         a custom easing function to be used on the animation phase
-     * @param easingY         a custom easing function to be used on the animation phase
-     */
-    public void animateXY(int durationMillisX, int durationMillisY, EasingFunction easingX,
-                          EasingFunction easingY) {
-        mAnimator.animateXY(durationMillisX, durationMillisY, easingX, easingY);
-    }
-
-    /**
-     * Animates the rendering of the chart on the x-axis with the specified
-     * animation time. If animate(...) is called, no further calling of
-     * invalidate() is necessary to refresh the chart. ANIMATIONS ONLY WORK FOR
-     * API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillis
-     * @param easing         a custom easing function to be used on the animation phase
-     */
-    public void animateX(int durationMillis, EasingFunction easing) {
-        mAnimator.animateX(durationMillis, easing);
-    }
-
-    /**
-     * Animates the rendering of the chart on the y-axis with the specified
-     * animation time. If animate(...) is called, no further calling of
-     * invalidate() is necessary to refresh the chart. ANIMATIONS ONLY WORK FOR
-     * API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillis
-     * @param easing         a custom easing function to be used on the animation phase
-     */
-    public void animateY(int durationMillis, EasingFunction easing) {
-        mAnimator.animateY(durationMillis, easing);
-    }
-
-    /**
-     * ################ ################ ################ ################
-     * ANIMATIONS ONLY WORK FOR API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     */
-    /** CODE BELOW FOR PREDEFINED EASING OPTIONS */
-
-    /**
-     * Animates the drawing / rendering of the chart on both x- and y-axis with
-     * the specified animation time. If animate(...) is called, no further
-     * calling of invalidate() is necessary to refresh the chart. ANIMATIONS
-     * ONLY WORK FOR API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillisX
-     * @param durationMillisY
-     * @param easingX         a predefined easing option
-     * @param easingY         a predefined easing option
-     */
-    public void animateXY(int durationMillisX, int durationMillisY, Easing.EasingOption easingX,
-                          Easing.EasingOption easingY) {
-        mAnimator.animateXY(durationMillisX, durationMillisY, easingX, easingY);
-    }
-
-    /**
-     * Animates the rendering of the chart on the x-axis with the specified
-     * animation time. If animate(...) is called, no further calling of
-     * invalidate() is necessary to refresh the chart. ANIMATIONS ONLY WORK FOR
-     * API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillis
-     * @param easing         a predefined easing option
-     */
-    public void animateX(int durationMillis, Easing.EasingOption easing) {
-        mAnimator.animateX(durationMillis, easing);
-    }
-
-    /**
-     * Animates the rendering of the chart on the y-axis with the specified
-     * animation time. If animate(...) is called, no further calling of
-     * invalidate() is necessary to refresh the chart. ANIMATIONS ONLY WORK FOR
-     * API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillis
-     * @param easing         a predefined easing option
-     */
-    public void animateY(int durationMillis, Easing.EasingOption easing) {
-        mAnimator.animateY(durationMillis, easing);
-    }
-
-    /**
-     * ################ ################ ################ ################
-     * ANIMATIONS ONLY WORK FOR API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     */
-    /** CODE BELOW FOR ANIMATIONS WITHOUT EASING */
-
-    /**
-     * Animates the rendering of the chart on the x-axis with the specified
-     * animation time. If animate(...) is called, no further calling of
-     * invalidate() is necessary to refresh the chart. ANIMATIONS ONLY WORK FOR
-     * API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillis
-     */
-    public void animateX(int durationMillis) {
-        mAnimator.animateX(durationMillis);
-    }
-
-    /**
-     * Animates the rendering of the chart on the y-axis with the specified
-     * animation time. If animate(...) is called, no further calling of
-     * invalidate() is necessary to refresh the chart. ANIMATIONS ONLY WORK FOR
-     * API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillis
-     */
-    public void animateY(int durationMillis) {
-        mAnimator.animateY(durationMillis);
-    }
-
-    /**
-     * Animates the drawing / rendering of the chart on both x- and y-axis with
-     * the specified animation time. If animate(...) is called, no further
-     * calling of invalidate() is necessary to refresh the chart. ANIMATIONS
-     * ONLY WORK FOR API LEVEL 11 (Android 3.0.x) AND HIGHER.
-     *
-     * @param durationMillisX
-     * @param durationMillisY
-     */
-    public void animateXY(int durationMillisX, int durationMillisY) {
-        mAnimator.animateXY(durationMillisX, durationMillisY);
     }
 
     public void setLayoutMode(int mode) {
@@ -598,7 +447,7 @@ public class CircleLayout extends ViewGroup {
         return onTouchEvent(ev);
     }
 
-    private void drawChild(Canvas canvas, View child, LayoutParams lp, boolean animation) {
+    private void drawChild(int i,Canvas canvas, View child, LayoutParams lp, boolean animation) {
 
         mSrcCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         mDstCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -619,24 +468,20 @@ public class CircleLayout extends ViewGroup {
         mXferPaint.setXfermode(null);
         mXferPaint.setColor(Color.BLACK);
 
-        sweepAngle = (lp.endAngle - lp.startAngle) % 360;
-
+        sweepAngle = (lp.endAngle - lp.startAngle);
         if (isAnimationOnly) {
 
-            mStart = lp.startAngle;
-
-//            mHandler.postDelayed(mAnimation,100);
-
-
-            if(mSweep < sweepAngle) {
-                mSweep += SWEEP_INC;
-
-                mDstCanvas.drawArc(mBounds, mStart, mSweep, true, mXferPaint);
-
+            if (mSweeps.get(i) < sweepAngle) {
+                mSweeps.set(i,(mSweeps.get(i) + (sweepAngle / 75 )));
+                Log.d("Sweep","View " + i + " : " +  mSweeps.get(i) + " / " + sweepAngle);
+                mDstCanvas.drawArc(mBounds, lp.startAngle,  mSweeps.get(i), true, mXferPaint);
                 mXferPaint.setXfermode(mXfer);
                 mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
                 invalidate();
             } else {
+                mDstCanvas.drawArc(mBounds, lp.startAngle, sweepAngle, true, mXferPaint);
+                mXferPaint.setXfermode(mXfer);
+                mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
                 if (animation) isAnimationOnly = false;
             }
 
@@ -660,24 +505,6 @@ public class CircleLayout extends ViewGroup {
         }
         canvas.drawBitmap(mDst, 0f, 0f, null);
     }
-
-    private Handler mHandler = new Handler();
-    private Runnable mAnimation = new Runnable() {
-        @Override
-        public void run() {
-
-
-            mDstCanvas.drawArc(mBounds, mStart, mSweep, true, mXferPaint);
-
-            mXferPaint.setXfermode(mXfer);
-            mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
-
-            if (mSweep < sweepAngle){
-                mSweep += SWEEP_INC;
-                invalidate();
-            }
-        }
-    };
 
     private void drawDividers(Canvas canvas, float halfWidth, float halfHeight, float radius) {
         final int childs = getChildCount();
@@ -720,6 +547,7 @@ public class CircleLayout extends ViewGroup {
         }
     }
 
+    boolean isListFloat = true;
     @Override
     protected void dispatchDraw(Canvas canvas) {
         if (mLayoutMode == LAYOUT_NORMAL) {
@@ -732,6 +560,14 @@ public class CircleLayout extends ViewGroup {
         }
 
         final int childs = getChildCount();
+
+        if (isListFloat){
+            mSweeps = new ArrayList<>();
+            for (int i = 0 ;i<childs;i++){
+                mSweeps.add(i,0f);
+            }
+            isListFloat = false;
+        }
 
         final float halfWidth = getWidth() / 2f;
         final float halfHeight = getHeight() / 2f;
@@ -770,10 +606,9 @@ public class CircleLayout extends ViewGroup {
             LayoutParams lp = layoutParams(child);
 
             if (i == childs - 1)
-                drawChild(canvas, child, lp, true);
+                drawChild(i,canvas, child, lp, true);
             else
-                drawChild(canvas, child, lp, false);
-
+                drawChild(i,canvas, child, lp, false);
         }
 
         drawDividers(canvas, halfWidth, halfHeight, radius);
