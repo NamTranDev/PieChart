@@ -76,11 +76,11 @@ public class CircleLayout extends ViewGroup {
     private boolean mCached = false;
     ChartAnimator mAnimator;
     private boolean isAnimationOnly = false;
-    private static float mSweep = 0;
+    private boolean isAnimationView = true;
     private float sweepAngle;
     private List<Float> mSweeps;
 
-    private static final float SWEEP_INC = 0.5f;
+    private static final float SWEEP_INC = 100f;
 
     /**
      * holds the raw version of the current rotation angle of the chart
@@ -472,16 +472,18 @@ public class CircleLayout extends ViewGroup {
         if (isAnimationOnly) {
 
             if (mSweeps.get(i) < sweepAngle) {
-                mSweeps.set(i,(mSweeps.get(i) + (sweepAngle / 75 )));
+                mSweeps.set(i,(mSweeps.get(i) + SWEEP_INC));
                 Log.d("Sweep","View " + i + " : " +  mSweeps.get(i) + " / " + sweepAngle);
                 mDstCanvas.drawArc(mBounds, lp.startAngle,  mSweeps.get(i), true, mXferPaint);
                 mXferPaint.setXfermode(mXfer);
                 mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
                 invalidate();
+                isAnimationView = true;
             } else {
                 mDstCanvas.drawArc(mBounds, lp.startAngle, sweepAngle, true, mXferPaint);
                 mXferPaint.setXfermode(mXfer);
                 mDstCanvas.drawBitmap(mSrc, 0f, 0f, mXferPaint);
+                isAnimationView = false;
                 if (animation) isAnimationOnly = false;
             }
 
@@ -607,8 +609,15 @@ public class CircleLayout extends ViewGroup {
 
             if (i == childs - 1)
                 drawChild(i,canvas, child, lp, true);
-            else
+            else{
                 drawChild(i,canvas, child, lp, false);
+                if (isAnimationOnly){
+                    if (isAnimationView)
+                        break;
+                    else
+                        continue;
+                }
+            }
         }
 
         drawDividers(canvas, halfWidth, halfHeight, radius);
